@@ -1,0 +1,15 @@
+---
+apiVersion: kpack.io/v1alpha1
+kind: Image
+metadata:
+  name: jar-image
+spec:
+  tag: kpackaks.azurecr.io/jar-image
+  builder:
+    name: aks-builder
+    kind: Builder
+  source:
+    registry:
+      image: kpackaks.azurecr.io/jar-source:2.3.0
+      # image: kpackaks.azurecr.io/jar-source:2.3.4
+  serviceAccount: aks-robot

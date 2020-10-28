@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jar-application
+spec:
+  selector:
+    matchLabels:
+      app: jar-application
+  template:
+    metadata:
+      labels:
+        app: jar-application
+    spec:
+      serviceAccountName: aks-robot
+      containers:
+      - name: main
+        image: kpackaks.azurecr.io/jar-image
+        ports:
+        - containerPort: 8080
+        - containerPort: 8081
+        env:
+        - name: MANAGEMENT_SERVER_PORT
+          value: "8081"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8081
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8081
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sh", "-c", "sleep 1"]

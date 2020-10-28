@@ -1,0 +1,48 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+ name: aks-robot
+secrets:
+- name: acr-credentials
+imagePullSecrets:
+- name: acr-credentials
+
+---
+apiVersion: kpack.io/v1alpha1
+kind: ClusterStore
+metadata:
+  name: aks-store
+spec:
+  sources:
+  - image: gcr.io/paketo-buildpacks/java-azure:3.6.0
+
+---
+apiVersion: kpack.io/v1alpha1
+kind: ClusterStack
+metadata:
+  name: aks-stack
+spec:
+  id: "io.buildpacks.stacks.bionic"
+  buildImage:
+    image: "paketobuildpacks/build:base-cnb"
+  runImage:
+    image: "paketobuildpacks/run:base-cnb"
+
+---
+apiVersion: kpack.io/v1alpha1
+kind: Builder
+metadata:
+  name: aks-builder
+spec:
+  tag: kpackaks.azurecr.io/aks-builder
+  serviceAccount: aks-robot
+  store:
+    name: aks-store
+    kind: ClusterStore
+  stack:
+    name: aks-stack
+    kind: ClusterStack
+  order:
+  - group:
+    - id: paketo-buildpacks/java-azure
